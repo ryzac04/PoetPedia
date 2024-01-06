@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ poem_title }}{% endblock %}
+
+{% block content %}
+
+{% if poem %}
+<h5 class="display-5">{{ poem_title }}</h5>
+    {% for p in poem %}
+    <ul class="mt-4">
+        <strong>Author: </strong><p>{{ p.Author }}</p>
+        <strong>Poem: </strong>
+        <div>
+            {% for line in p.Poem %}
+                {{ line }}<br>
+            {% endfor %}
+        </div>
+    </ul>
+    {% endfor %}
+{% else %}
+<p>"{{ poem_title }}" does not live here!</p>
+{% endif %}
+
+{% endblock %}
+

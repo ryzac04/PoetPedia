@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome!{% endblock %}
+
+{% block content %}
+
+<h3 class="display-3">Welcome to PoetPedia!</h3>
+<p class="lead">Poetry at your fingertips! </p>
+
+<form method="POST" action="{{ url_for('welcome_page') }}">
+
+    {{ form.hidden_tag() }}
+
+    {% for field in form
+    if field.widget.input_type != 'hidden' %}
+    <p>
+        {{ field.label }}
+        {{ field(class_="form-control") }}
+
+        {% for error in field.errors %}
+        <span class="form-text text-danger">{{ error }}</span>
+        {% endfor %}
+    </p>
+    {% endfor %}
+
+    <button class="btn btn-info" type="submit">Search</button>
+
+</form>
+
+{% if results %}
+<h4 class="display-4">Search Results</h4>
+<ul>
+    {% for result in results %}
+    <li class="mt-4">
+        {% if 'Title' in result %}
+        <strong>Title: </strong><a href="{{ url_for('poem_content', poem_title=result.Title)}}">{{ result.Title }}</a> <br>
+        {% endif %}
+        {% if 'Author' in result %}
+        <strong>Author: </strong><a href="{{ url_for('poems_by_author', author_name=result.Author)}}">{{ result.Author }}</a> <br>
+        {% endif %}
+        {% if 'Line' in result %}
+        <strong>Title: </strong> {{ result.Title }}<br>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+
+
+{% endblock %}

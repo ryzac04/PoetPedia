@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ author_name }}{% endblock %}
+
+{% block content %}
+
+{% if poems %}
+<h4 class="display-4">{{ author_name }}'s Poems</h4>
+<ul>
+    {% for poem in poems %}
+    <li class="mt-4">
+        <a href= "{{url_for('poem_content', poem_title=poem.Title)}}">{{ poem.Title }}</a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>{{ author_name }} does not have any poems!</p>
+{% endif %}
+
+{% endblock %}

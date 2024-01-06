@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}{{user.first_name}} {{user.last_name}}{% endblock %}
+
+{% block content %}
+
+<div>
+    <h4 class="display-4">User Information</h4>
+
+    <p>Name: {{user.first_name}} {{user.last_name}}</p>
+
+    <p>Email: {{user.email}}</p>
+
+    <p>Username: {{user.username}}</p>
+
+    <img src="{{user.image_url}}" alt="{{user.username}}'s profile picture.">
+
+    
+
+    <form method="POST">
+        <button class="mt-4 btn btn-primary btn-sm" formaction="{{ url_for('edit_profile', user=user.id)}}">Edit Info</button>
+        <button class="mt-4 btn btn-danger btn-sm" formaction="{{ url_for('delete_user')}}">Delete User</button>
+    </form>
+</div>
+
+<div class="row">
+    <div class="mt-4 col-12">
+        <h4 class="display-4">Your Favorites</h4>
+        <ul>
+            {% for feedback in user.feedback %}
+            <li>
+                {{feedback.title}}
+                <small>{{feedback.content}}</small>
+            </li>
+            <form>
+                <button class="btn btn-primary" formmethod="GET"
+                    formaction="/feedback/{{feedback.id}}/update">Edit</button>
+                <button class="btn btn-danger" formmethod="POST"
+                    formaction="/feedback/{{feedback.id}}/delete">Delete</button>
+            </form>
+            {% endfor %}
+        </ul>
+        <a href="/users/{{user.username}}/feedback/add">Add Feedback</a>
+    </div>
+</div>
+
+{% endblock %}
