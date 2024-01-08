@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template, redirect, flash, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from models import connect_db, db, User, Poem, Favorite
@@ -17,10 +19,12 @@ CURR_USER_KEY = "curr_user"
 API_URL = "https://poetrydb.org/"
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///PoetPedia_db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+    "DATABASE_URL", "postgresql:///PoetPedia_db"
+)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
-app.config["SECRET_KEY"] = "abc123"
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "abc123")
 app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
 
 
@@ -67,11 +71,10 @@ def poem_content(poem_title):
 
     poem = handle_poem_content(poem_title)
     poem_data = fetch_poem_from_api(poem_title)
+    poem_id = None
+    is_favorited = False
 
     if g.user:
-        poem_id = None
-        is_favorited = False
-
         if poem_data:
             new_poem = Poem.query.filter_by(title=poem_title, user_id=g.user.id).first()
             poem_id = new_poem.id if new_poem else None

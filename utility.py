@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from models import db, User, Poem
 import requests, json
 
-API_URL = "https://poetrydb.org/"
+API_URL = "https://poetrydb.org"
 
 app = Flask(__name__)
 
@@ -125,7 +125,7 @@ def fetch_poem_from_api(title):
 
 
 def add_poem_to_database(poem_data, user_id):
-    """Adds a poem to the database."""
+    """Adds a poem to the poems database."""
 
     if not poem_data:
         return None
