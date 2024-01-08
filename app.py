@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, flash, session, g, jsonify, request
+from flask import Flask, render_template, redirect, flash, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from models import connect_db, db, User, Poem, Favorite
 from forms import PoemSearchForm, RegisterForm, LoginForm, EditForm
