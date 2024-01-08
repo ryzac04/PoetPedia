@@ -15,30 +15,6 @@ def connect_db(app):
     db.init_app(app)
 
 
-class Poem(db.Model):
-    """Model for poems."""
-
-    __tablename__ = "poems"
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    title = db.Column(db.Text)
-
-    author = db.Column(db.Text)
-
-    line = db.Column(db.Text)
-
-
-# class Likes(db.Model):
-#     """Mapping user likes to chosen poems."""
-
-#     id = db.Column(db.Integer, primary_key=True)
-
-#     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="cascade"))
-
-#     poem_id = db.Column(db.Integer, db.ForeignKey("poems.id", ondelete="cascade"))
-
-
 class User(db.Model):
     """Model for site user(s)."""
 
@@ -58,7 +34,11 @@ class User(db.Model):
 
     image_url = db.Column(db.Text, default="/static/images/default-pic.png")
 
-    # likes = db.relationship("Poem", secondary="likes")
+    poems = db.relationship("Poem", backref="user", cascade="all, delete-orphan")
+
+    favorites = db.relationship(
+        "Favorite", backref="user", cascade="all, delete-orphan"
+    )
 
     @classmethod
     def signup(cls, first_name, last_name, email, username, password, image_url):
@@ -72,12 +52,11 @@ class User(db.Model):
             email=email,
             username=username,
             password=hashed_pwd,
-            image_url=image_url
+            image_url=image_url,
         )
 
         db.session.add(user)
         return user
-    
 
     @classmethod
     def authenticate(cls, username, password):
@@ -90,4 +69,40 @@ class User(db.Model):
             if is_auth:
                 return user
         else:
-            return False
+            return None
+
+
+class Poem(db.Model):
+    """Model for poems."""
+
+    __tablename__ = "poems"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    title = db.Column(db.Text)
+
+    author = db.Column(db.Text)
+
+    lines = db.Column(db.Text)
+
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("users.id", ondelete="cascade"), nullable=False
+    )
+
+    favorites = db.relationship(
+        "Favorite", backref="poem", cascade="all, delete-orphan"
+    )
+
+
+class Favorite(db.Model):
+    """Mapping user likes to chosen poems."""
+
+    __tablename__ = "favorites"
+
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("users.id", ondelete="cascade"), primary_key=True
+    )
+
+    poem_id = db.Column(
+        db.Integer, db.ForeignKey("poems.id", ondelete="cascade"), primary_key=True
+    )

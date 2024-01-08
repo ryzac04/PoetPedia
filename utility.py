@@ -1,9 +1,11 @@
 from flask import Flask, flash
-from models import db, User
 from sqlalchemy.exc import IntegrityError
+from models import db, User, Poem
 import requests, json
 
 API_URL = "https://poetrydb.org/"
+
+app = Flask(__name__)
 
 
 ###############################################################################
@@ -109,8 +111,8 @@ def handle_poems_by_author(author_name):
     return title_list
 
 
-def handle_poem_content(title):
-    """Gets all poem content."""
+def fetch_poem_from_api(title):
+    """Fetches poem data from the API."""
 
     res = requests.get(f"{API_URL}/title/{title}")
 
@@ -118,6 +120,37 @@ def handle_poem_content(title):
         poem_data = res.json()
     except json.JSONDecodeError:
         return []
+
+    return poem_data
+
+
+def add_poem_to_database(poem_data, user_id):
+    """Adds a poem to the database."""
+
+    if not poem_data:
+        return None
+
+    for data in poem_data:
+        title = data.get("title")
+        author = data.get("author")
+        lines = data.get("lines")
+
+        existing_poem = Poem.query.filter_by(title=title, user_id=user_id).first()
+
+        if not existing_poem:
+            new_poem = Poem(title=title, author=author, lines=lines, user_id=user_id)
+            db.session.add(new_poem)
+            db.session.commit()
+
+            return new_poem
+
+    return None
+
+
+def handle_poem_content(title):
+    """Gets all poem content."""
+
+    poem_data = fetch_poem_from_api(title)
 
     poem_content = []
 
@@ -163,11 +196,13 @@ def handle_signup_form(form):
 
 def is_username_taken(username):
     """Check if a username is already taken."""
+
     return User.query.filter_by(username=username).first() is not None
 
 
 def handle_edit_profile(user, form):
     """Update user profile if the password is correct and the username is not taken."""
+
     try:
         if not User.authenticate(user.username, form.password.data):
             flash("Incorrect password! Try again?", "danger")

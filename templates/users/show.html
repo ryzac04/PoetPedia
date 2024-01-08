@@ -27,20 +27,12 @@
     <div class="mt-4 col-12">
         <h4 class="display-4">Your Favorites</h4>
         <ul>
-            {% for feedback in user.feedback %}
+            {% for favorite in user.favorites %}
             <li>
-                {{feedback.title}}
-                <small>{{feedback.content}}</small>
+                {{favorite.title}}
             </li>
-            <form>
-                <button class="btn btn-primary" formmethod="GET"
-                    formaction="/feedback/{{feedback.id}}/update">Edit</button>
-                <button class="btn btn-danger" formmethod="POST"
-                    formaction="/feedback/{{feedback.id}}/delete">Delete</button>
-            </form>
             {% endfor %}
         </ul>
-        <a href="/users/{{user.username}}/feedback/add">Add Feedback</a>
     </div>
 </div>
 

@@ -1,14 +1,15 @@
-from flask import Flask, render_template, redirect, flash, session, g
+from flask import Flask, render_template, redirect, flash, session, g, jsonify, request
 from flask_debugtoolbar import DebugToolbarExtension
-from sqlalchemy.exc import IntegrityError
-from models import connect_db, db, User, Poem
+from models import connect_db, db, User, Poem, Favorite
 from forms import PoemSearchForm, RegisterForm, LoginForm, EditForm
-from helpers import (
+from utility import (
     handle_poems_by_author,
     handle_poem_content,
     handle_welcome_page,
     handle_signup_form,
     handle_edit_profile,
+    fetch_poem_from_api,
+    add_poem_to_database,
 )
 
 CURR_USER_KEY = "curr_user"
@@ -34,6 +35,7 @@ toolbar = DebugToolbarExtension(app)
 @app.route("/")
 def home_page():
     """Redirect to welcome page."""
+
     return redirect("/welcome")
 
 
@@ -64,8 +66,59 @@ def poem_content(poem_title):
     """Shows poem content on separate page."""
 
     poem = handle_poem_content(poem_title)
+    poem_data = fetch_poem_from_api(poem_title)
 
-    return render_template("poems/show.html", poem_title=poem_title, poem=poem)
+    if g.user:
+        poem_id = None
+        is_favorited = False
+
+        if poem_data:
+            new_poem = Poem.query.filter_by(title=poem_title, user_id=g.user.id).first()
+            poem_id = new_poem.id if new_poem else None
+
+            if poem_id:
+                is_favorited = Favorite.query.filter_by(
+                    user_id=g.user.id, poem_id=poem_id
+                ).first()
+
+            if not poem_id:
+                add_poem = add_poem_to_database(poem_data, g.user.id)
+                poem_id = add_poem.id
+
+    return render_template(
+        "poems/show.html",
+        poem_title=poem_title,
+        poem=poem,
+        poem_id=poem_id,
+        is_favorited=is_favorited,
+    )
+
+
+@app.route("/toggle_favorite/<int:poem_id>", methods=["POST"])
+def toggle_favorite(poem_id):
+    """Toggles a favorited or un-favorited poem."""
+
+    user_id = session.get(CURR_USER_KEY)
+
+    if user_id:
+        poem = Poem.query.get(poem_id)
+
+        if poem:
+            is_favorited = Favorite.query.filter_by(
+                user_id=user_id, poem_id=poem.id
+            ).first()
+
+            if is_favorited:
+                db.session.delete(is_favorited)
+                flash(f"{poem.title} has been removed from your favorites", "success")
+            else:
+                new_favorite = Favorite(user_id=user_id, poem_id=poem.id)
+                db.session.add(new_favorite)
+                flash(f"{poem.title} has been added to your favorites", "success")
+
+            db.session.commit()
+
+    return redirect(f"/poem/{poem.title}")
 
 
 ###############################################################################
@@ -151,6 +204,10 @@ def logout():
 def show_user(user_id):
     """Show user profile."""
 
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
     user = User.query.get(user_id)
 
     return render_template("users/show.html", user=user)
@@ -159,6 +216,7 @@ def show_user(user_id):
 @app.route("/users/edit/<int:user>", methods=["GET", "POST"])
 def edit_profile(user):
     """Update profile for current user."""
+
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")

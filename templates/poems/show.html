@@ -5,21 +5,35 @@
 {% block content %}
 
 {% if poem %}
-<h5 class="display-5">{{ poem_title }}</h5>
+<h5 id="poem-title" class="display-5">{{ poem_title }}</h5>
+
+{% if g.user %}
+<form method="POST" action="/toggle_favorite/{{poem_id}}" id="favorite-form">
+    <button id="toggle-poem-button"
+        class="btn btn-sm {% if is_favorited %}btn-primary{% else %}btn-secondary{% endif %} float-right"
+        data-id="{{ poem_id }}" data-favorite="{% if is_favorited %}true{% else %}false{% endif %}">
+        <i class=" mt-2 float-right fa-2x fa-regular fa-bookmark"></i>
+    </button>
+</form>
+{% endif %}
+
     {% for p in poem %}
     <ul class="mt-4">
-        <strong>Author: </strong><p>{{ p.Author }}</p>
+        <strong>Author: </strong>
+        <p id="poem-author">{{ p.Author }}</p>
         <strong>Poem: </strong>
-        <div>
+        <div id="poem-lines">
             {% for line in p.Poem %}
                 {{ line }}<br>
             {% endfor %}
         </div>
     </ul>
     {% endfor %}
+
 {% else %}
 <p>"{{ poem_title }}" does not live here!</p>
 {% endif %}
 
 {% endblock %}
+
 
