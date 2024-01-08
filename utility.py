@@ -1,6 +1,6 @@
-from flask import Flask, flash
+from flask import Flask, flash, g
 from sqlalchemy.exc import IntegrityError
-from models import db, User, Poem
+from models import db, User, Poem, Favorite
 import requests, json
 
 API_URL = "https://poetrydb.org"
@@ -111,19 +111,6 @@ def handle_poems_by_author(author_name):
     return title_list
 
 
-def fetch_poem_from_api(title):
-    """Fetches poem data from the API."""
-
-    res = requests.get(f"{API_URL}/title/{title}")
-
-    try:
-        poem_data = res.json()
-    except json.JSONDecodeError:
-        return []
-
-    return poem_data
-
-
 def add_poem_to_database(poem_data, user_id):
     """Adds a poem to the poems database."""
 
@@ -166,6 +153,19 @@ def handle_poem_content(title):
         )
 
     return poem_content
+
+
+def fetch_poem_from_api(title):
+    """Fetches poem data from the API."""
+
+    res = requests.get(f"{API_URL}/title/{title}")
+
+    try:
+        poem_data = res.json()
+    except json.JSONDecodeError:
+        return []
+
+    return poem_data
 
 
 def handle_signup_form(form):
