@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}{{user.first_name}} {{user.last_name}}{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="mt-4 col-12">
+        <h4 class="display-4">Favorite Poems</h4>
+        <ul>
+            {% for favorite in favorite_poems %}
+            <li class="mt-4">
+                <strong>Title: </strong><a href="{{ url_for('poem_content', poem_title=favorite.poem.title)}}">{{
+                    favorite.poem.title
+                    }}</a>
+                <br>
+                <strong>Author: </strong><a href="{{ url_for('poems_by_author', author_name=favorite.poem.author)}}">{{
+                    favorite.poem.author}}</a>
+                <br>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+{% endblock %}

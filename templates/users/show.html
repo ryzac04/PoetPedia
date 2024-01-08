@@ -23,17 +23,4 @@
     </form>
 </div>
 
-<div class="row">
-    <div class="mt-4 col-12">
-        <h4 class="display-4">Your Favorites</h4>
-        <ul>
-            {% for favorite in user.favorites %}
-            <li>
-                {{favorite.title}}
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-</div>
-
 {% endblock %}

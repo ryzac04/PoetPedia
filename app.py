@@ -194,10 +194,31 @@ def login():
 def logout():
     """Handle user logout."""
 
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
     do_logout()
 
     flash("You have successfully logged out!", "success")
     return redirect("/login")
+
+
+@app.route("/users/favorites/<int:user_id>/")
+def favorites_list(user_id):
+    """List of user's favorited poems."""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    user = User.query.get_or_404(user_id)
+
+    favorite_poems = user.favorites
+
+    return render_template(
+        "users/favorites.html", user=user, favorite_poems=favorite_poems
+    )
 
 
 @app.route("/users/profile/<int:user_id>")
@@ -208,7 +229,7 @@ def show_user(user_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    user = User.query.get(user_id)
+    user = User.query.get_or_404(user_id)
 
     return render_template("users/show.html", user=user)
 
