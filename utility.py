@@ -234,3 +234,26 @@ def handle_edit_profile(user, form):
         db.session.rollback()
         flash("An error occurred while updating the profile.", "danger")
         return False
+
+
+def handle_delete_profile(user, form):
+    """Deletes user profile."""
+    from app import do_logout
+
+    try:
+        entered_password = form.delete.data
+        if not User.authenticate(user.username, entered_password):
+            flash("Incorrect password! Account deletion cancelled.", "danger")
+            return False
+
+        do_logout()
+
+        db.session.delete(user)
+        db.session.commit()
+
+        return True
+
+    except IntegrityError:
+        db.session.rollback()
+        flash("An error occurred while deleting this profile.", "danger")
+        return False

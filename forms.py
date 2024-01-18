@@ -42,3 +42,9 @@ class EditForm(FlaskForm):
     password = PasswordField(
         "Enter password to confirm changes", validators=[Length(min=6)]
     )
+
+
+class DeleteForm(FlaskForm):
+    """Form to confirm profile deletion."""
+
+    delete = PasswordField("Enter password to confirm")

@@ -3,7 +3,7 @@ import os
 from flask import Flask, render_template, redirect, flash, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from models import connect_db, db, User, Poem, Favorite
-from forms import PoemSearchForm, RegisterForm, LoginForm, EditForm
+from forms import PoemSearchForm, RegisterForm, LoginForm, EditForm, DeleteForm
 from utility import (
     handle_poems_by_author,
     handle_poem_content,
@@ -12,6 +12,7 @@ from utility import (
     handle_edit_profile,
     fetch_poem_from_api,
     add_poem_to_database,
+    handle_delete_profile,
 )
 
 CURR_USER_KEY = "curr_user"
@@ -224,7 +225,7 @@ def favorites_list(user_id):
     )
 
 
-@app.route("/users/profile/<int:user_id>")
+@app.route("/users/profile/<int:user_id>", methods=["GET", "POST"])
 def show_user(user_id):
     """Show user profile."""
 
@@ -255,17 +256,20 @@ def edit_profile(user):
     return render_template("users/edit.html", form=form, user_id=current_user.id)
 
 
-@app.route("/users/delete", methods=["POST"])
-def delete_user():
-    """Delete user."""
+@app.route("/users/delete/<int:user>", methods=["GET", "POST"])
+def delete_profile(user):
+    """Form to verify that user wants to delete their profile."""
 
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    do_logout()
+    current_user = g.user
+    form = DeleteForm()
 
-    db.session.delete(g.user)
-    db.session.commit()
+    if form.validate_on_submit():
+        if handle_delete_profile(current_user, form):
+            flash("You have successfully deleted your account!", "success")
+            return redirect("/welcome")
 
-    return redirect("/signup")
+    return render_template("users/delete.html", form=form, user_id=current_user.id)
