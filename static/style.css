@@ -5,3 +5,7 @@
 #bookmark2 {
     cursor: pointer;
 }
+.profile-image {
+    height: 100px;
+    width: 100px;
+}

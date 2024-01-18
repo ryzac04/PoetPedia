@@ -17,6 +17,8 @@ $(document).ready(function () {
         console.log("Poem Data:", poemData);
         console.log("Poem ID:", poemId);
 
+        // The url for the ajax request is found in poems/show.html template //
+        
         $.ajax({
             url: button.closest('form').attr('action'),
             method: "POST",

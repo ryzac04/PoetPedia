@@ -1,6 +1,6 @@
-from flask import Flask, flash, g
+from flask import Flask, flash
 from sqlalchemy.exc import IntegrityError
-from models import db, User, Poem, Favorite
+from models import db, User, Poem
 import requests, json
 
 API_URL = "https://poetrydb.org"
@@ -213,11 +213,20 @@ def handle_edit_profile(user, form):
             flash("Username already taken! Try again?", "danger")
             return False
 
-        user.first_name = form.first_name.data
-        user.last_name = form.last_name.data
-        user.email = form.email.data
-        user.username = new_username
-        user.image_url = form.image_url.data or "/static/images/default-pic.png"
+        if form.first_name.data:
+            user.first_name = form.first_name.data
+
+        if form.last_name.data:
+            user.last_name = form.last_name.data
+
+        if form.email.data:
+            user.email = form.email.data
+
+        if form.username.data:
+            user.username = new_username
+
+        if form.image_url.data:
+            user.image_url = form.image_url.data or "/static/images/default-pic.png"
 
         db.session.commit()
         return True
