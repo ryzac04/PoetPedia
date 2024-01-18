@@ -11,11 +11,11 @@ from utility import (
     search_poem_author,
     search_poem_line,
 )
-from models import db, Poem, User, Favorite
+from models import db
 
 os.environ["DATABASE_URL"] = "postgresql:///PoetPedia_db_test"
 
-from app import app, CURR_USER_KEY
+from app import app
 
 db.create_all()
 

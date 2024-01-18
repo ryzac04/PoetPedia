@@ -7,7 +7,6 @@
 <h4 class="display-4">Edit Your Info</h4>
 
 <form method="POST" class="mt-4">
-
     {{ form.hidden_tag() }}
 
     {% for field in form
@@ -23,7 +22,6 @@
     {% endfor %}
 
     <button class="btn btn-success" type="submit">Edit Information</button>
-
 </form>
 
 {% endblock %}
