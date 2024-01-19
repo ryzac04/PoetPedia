@@ -21,7 +21,8 @@ API_URL = "https://poetrydb.org/"
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-    "DATABASE_URL", "postgresql:///PoetPedia_db"
+    "DATABASE_URL",
+    "postgresql://pejewkpu:rMBzwNDLWzs6G3gqMYuH0o07MhiLs4jr@mahmud.db.elephantsql.com/pejewkpu",
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
